@@ -116,6 +116,18 @@ app.post('/login', async (req, res) => {
     return res.json({ token });
 });
 
+app.get('/object', authenticateToken, async (req, res) => {
+    const owner = req.user.username;
+    const ownerUser = await User.findOne({ name: owner });
+    const dbObjects = await DBObject.find({ owner: ownerUser._id });
+    console.log('dbObjects:', dbObjects);
+    if (!dbObjects) {
+        return res.status(404).send('Object not found.');
+    }
+    return res.json(dbObjects);
+
+});
+
 app.get('/object/:name', authenticateToken, async (req, res) => {
     const { name } = req.params;
     const owner = req.user.username;
@@ -148,15 +160,47 @@ app.post('/object', authenticateToken, async (req, res) => {
     }
 
     // Create a new object
-    const newObject = new DBObject({ name, value });
+    const newObject = new DBObject({ name, value, owner: ownerUser._id });
     await newObject.populate('owner', ownerUser._id);
     const ret = await newObject.save();
     return res.json(ret);
 });
 
-app.put('/object/:name', authenticateToken, (req, res) => {
+app.put('/object/:name', authenticateToken, async (req, res) => {
+    const { name } = req.params;
+    const owner = req.user.username;
+
+    if(!name) {
+        return res.status(400).send('Name is required.');
+    }
+
+    const ownerUser = await User.findOne({ name: owner });
+    const dbObject = await DBObject.findOne({ name, owner: ownerUser._id });
+    if (!dbObject) {
+        return res.status(404).send('Object not found.');
+    }
+
+    dbObject.value = value;
+    await dbObject.save();
+    return res.json(dbObject);
 });
 
+app.delete('/object/:name', authenticateToken, async (req, res) => {
+    const { name } = req.params;
+    const owner = req.user.username;
+
+    if(!name) {
+        return res.status(400).send('Name is required.');
+    }
+
+    const ownerUser = await User.findOne({ name: owner });
+    const dbObject = await DBObject.findOne({ name, owner: ownerUser._id });
+    if (!dbObject) {
+        return res.status(404).send('Object not found.');
+    }
+    await dbObject.delete();
+    return res.json(dbObject);
+});
 
 ////////////////////////////////////////////////////////////////////////
 // Start the server
