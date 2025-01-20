@@ -123,21 +123,12 @@ app.get('/object/:name', authenticateToken, async (req, res) => {
     if(!name) {
         return res.status(400).send('Name is required.');
     }
-    
-    if(!owner) {
-        return res.status(400).send('Please authenticate first.');
-    }
 
     const ownerUser = await User.findOne({ name: owner });
-    if (!ownerUser) {
-        return res.status(400).send('Owner not found.');
-    }
-
     const dbObject = await DBObject.findOne({ name, owner: ownerUser._id });
     if (!dbObject) {
         return res.status(404).send('Object not found.');
     }
-
     return res.json(dbObject);
 });
 
@@ -149,20 +140,13 @@ app.post('/object', authenticateToken, async (req, res) => {
         return res.status(400).send('Name and Value are required.');
     }
 
-    if(!owner) {
-        return res.status(400).send('Please authenticate first.');
-    }
-
     // Check the object name is unique for the owner
     const ownerUser = await User.findOne({ name: owner });
-    if (!ownerUser) {
-        return res.status(400).send('Owner not found.');
-    }
     const dbObject = await DBObject.findOne({ name, owner: ownerUser._id });
     if (dbObject) {
         return res.status(400).send('Object name already exists.');
     }
-    
+
     // Create a new object
     const newObject = new DBObject({ name, value });
     await newObject.populate('owner', ownerUser._id);
