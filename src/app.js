@@ -111,7 +111,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Generate JWT token and pass it to the client
-    const token = jwt.sign({ username }, JWT_SECRET_KEY, { expiresIn: "1h" });
+    const token = jwt.sign({ username }, JWT_SECRET_KEY, { expiresIn: "24h" });
     console.log('token:', token);
     return res.json({ token });
 });
