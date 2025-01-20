@@ -79,7 +79,6 @@ const authenticateToken = (req, res, next) => {
 
     try {
         const user = jwt.verify(token, JWT_SECRET_KEY);
-        console.log('verified:', user);
         req.user = user;
         next();
     } catch (err) {
@@ -104,8 +103,6 @@ app.get('/', (_, res) => res.json('OK'));
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-
-    console.log(req);
 
     // Check username exists in the Users collection and password is correct
     const user = await User.findOne({ name: username, password: password });
