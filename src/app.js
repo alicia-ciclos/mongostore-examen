@@ -112,7 +112,6 @@ app.post('/login', async (req, res) => {
 
     // Generate JWT token and pass it to the client
     const token = jwt.sign({ username }, JWT_SECRET_KEY, { expiresIn: "24h" });
-    console.log('token:', token);
     return res.json({ token });
 });
 
@@ -120,7 +119,6 @@ app.get('/object', authenticateToken, async (req, res) => {
     const owner = req.user.username;
     const ownerUser = await User.findOne({ name: owner });
     const dbObjects = await DBObject.find({ owner: ownerUser._id });
-    console.log('dbObjects:', dbObjects);
     if (!dbObjects) {
         return res.status(404).send('Object not found.');
     }
