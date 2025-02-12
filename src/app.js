@@ -63,29 +63,6 @@ await User.findOne({ name: 'admin' })
     });
 
 
-////////////////////////////////////////////////////////////////////////
-// Authentication middleware with JWT
-////////////////////////////////////////////////////////////////////////
-const authenticateToken = (req, res, next) => {
-    if (!req.headers['authorization']) {
-        return res.status(401).send('No Token Provided!');
-    }
-
-    if (!req.headers['authorization'].startsWith('Bearer ')) {
-        return res.status(401).send('Invalid Token Format!');
-    }
-
-    const token = req.headers['authorization'].split(' ')[1];
-
-    try {
-        const user = jwt.verify(token, JWT_SECRET_KEY);
-        req.user = user;
-        next();
-    } catch (err) {
-        res.status(400).send('Invalid Token');
-    }
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 // Create the express.js server
@@ -126,8 +103,8 @@ app.post('/login', async (req, res) => {
     return res.json({ token });
 });
 
-app.get('/object', authenticateToken, async (req, res) => {
-    const owner = req.user.username;
+app.get('/object', async (req, res) => {
+    const owner = "admin";
     const ownerUser = await User.findOne({ name: owner });
     const dbObjects = await DBObject.find({ owner: ownerUser._id });
     if (!dbObjects) {
@@ -137,9 +114,9 @@ app.get('/object', authenticateToken, async (req, res) => {
 
 });
 
-app.get('/object/:name', authenticateToken, async (req, res) => {
+app.get('/object/:name', async (req, res) => {
     const { name } = req.params;
-    const owner = req.user.username;
+    const owner = "admin";
 
     if(!name) {
         return res.status(400).send('Name is required.');
@@ -153,9 +130,9 @@ app.get('/object/:name', authenticateToken, async (req, res) => {
     return res.json(dbObject);
 });
 
-app.post('/object', authenticateToken, async (req, res) => {
+app.post('/object', async (req, res) => {
     const { name, value } = req.body;
-    const owner = req.user.username;
+    const owner = "admin";
 
     if(!name || !value) {
         return res.status(400).send('Name and Value are required.');
@@ -175,9 +152,9 @@ app.post('/object', authenticateToken, async (req, res) => {
     return res.json(ret);
 });
 
-app.put('/object/:name', authenticateToken, async (req, res) => {
+app.put('/object/:name', async (req, res) => {
     const { name } = req.params;
-    const owner = req.user.username;
+    const owner = "admin";
 
     if(!name) {
         return res.status(400).send('Name is required.');
@@ -194,9 +171,9 @@ app.put('/object/:name', authenticateToken, async (req, res) => {
     return res.json(dbObject);
 });
 
-app.delete('/object/:name', authenticateToken, async (req, res) => {
+app.delete('/object/:name', async (req, res) => {
     const { name } = req.params;
-    const owner = req.user.username;
+    const owner = "admin";
 
     if(!name) {
         return res.status(400).send('Name is required.');
