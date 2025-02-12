@@ -134,7 +134,7 @@ app.post('/object', async (req, res) => {
     const { name, value } = req.body;
     const owner = "admin";
 
-    if(!name || !value) {
+    if(!name) {
         return res.status(400).send('Name and Value are required.');
     }
 
@@ -154,6 +154,7 @@ app.post('/object', async (req, res) => {
 
 app.put('/object/:name', async (req, res) => {
     const { name } = req.params;
+    const { value } = req.body;
     const owner = "admin";
 
     if(!name) {
@@ -184,7 +185,7 @@ app.delete('/object/:name', async (req, res) => {
     if (!dbObject) {
         return res.status(404).send('Object not found.');
     }
-    await dbObject.delete();
+    await dbObject.deleteOne();
     return res.json(dbObject);
 });
 
